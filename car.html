@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Crash Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #f0f0f0;
+        }
+        canvas {
+            display: block;
+        }
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            color: red;
+            font-weight: bold;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .restart-btn {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            padding: 15px 30px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+        }
+        .restart-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div class="game-over" id="gameOver" style="display: none;">
+        Game Over! <br> Press R to Restart
+    </div>
+    <button class="restart-btn" id="restartBtn">Restart Game</button>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const carImage = new Image();
+        carImage.src = "https://i.postimg.cc/xTZkJ5Ps/pngtree-cartoon-blue-car-illustration-png-image-7070046.png";
+        const roadImage = new Image();
+        roadImage.src = "https://i.postimg.cc/KvvDb094/800-3835559-xg4lc17u1vj27v0xvaj69uhr5gxwid6290acxwtq.jpg";
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const roadWidth = 5;
+        let car = {
+            x: canvas.width / 2 - 50,
+            y: canvas.height - 150,
+            speed: 0,
+            angle: 0,
+            moveSpeed: 2,
+            turnSpeed: 0.05,
+            width: 100,
+            height: 50
+        };
+
+        let obstacles = [];
+        let gameOver = false;
+
+        // Key press tracking
+        let keys = {
+            up: false,
+            down: false,
+            left: false,
+            right: false
+        };
+
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "w") keys.up = true;
+            if (e.key === "s") keys.down = true;
+            if (e.key === "a") keys.left = true;
+            if (e.key === "d") keys.right = true;
+            if (e.key === "r" && gameOver) restartGame();
+        });
+
+        window.addEventListener("keyup", (e) => {
+            if (e.key === "w") keys.up = false;
+            if (e.key === "s") keys.down = false;
+            if (e.key === "a") keys.left = false;
+            if (e.key === "d") keys.right = false;
+        });
+
+        function createObstacle() {
+            const size = Math.random() * 40 + 30; // Random size for obstacle
+            const x = Math.random() * (canvas.width - size);
+            obstacles.push({ x, y: -size, width: size, height: size });
+        }
+
+        function updateObstacles() {
+            obstacles.forEach((obs, index) => {
+                obs.y += 5; // Speed of obstacle falling down
+                if (obs.y > canvas.height) {
+                    obstacles.splice(index, 1);
+                }
+            });
+        }
+
+        function detectCollisions() {
+            obstacles.forEach((obs) => {
+                if (
+                    car.x < obs.x + obs.width &&
+                    car.x + car.width > obs.x &&
+                    car.y < obs.y + obs.height &&
+                    car.y + car.height > obs.y
+                ) {
+                    gameOver = true;
+                    displayGameOver();
+                }
+            });
+        }
+
+        function displayGameOver() {
+            document.getElementById("gameOver").style.display = "block";
+            document.getElementById("restartBtn").style.display = "block";
+        }
+
+        function restartGame() {
+            gameOver = false;
+            car.x = canvas.width / 2 - 50;
+            car.y = canvas.height - 150;
+            obstacles = [];
+            document.getElementById("gameOver").style.display = "none";
+            document.getElementById("restartBtn").style.display = "none";
+            gameLoop();
+        }
+
+        function gameLoop() {
+            if (gameOver) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the road
+            ctx.drawImage(roadImage, 0, 0, canvas.width, canvas.height);
+
+            // Update car movement
+            if (keys.up) car.speed = Math.min(car.speed + 0.1, 5);
+            if (keys.down) car.speed = Math.max(car.speed - 0.1, -2);
+            if (keys.left) car.angle -= car.turnSpeed;
+            if (keys.right) car.angle += car.turnSpeed;
+
+            car.x += Math.sin(car.angle) * car.speed;
+            car.y -= Math.cos(car.angle) * car.speed;
+
+            // Draw car
+            ctx.save();
+            ctx.translate(car.x + car.width / 2, car.y + car.height / 2);
+            ctx.rotate(car.angle);
+            ctx.drawImage(carImage, -car.width / 2, -car.height / 2, car.width, car.height);
+            ctx.restore();
+
+            // Create obstacles periodically
+            if (Math.random() < 0.02) createObstacle();
+
+            // Update and draw obstacles
+            updateObstacles();
+            obstacles.forEach((obs) => {
+                ctx.fillStyle = "red";
+                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+            });
+
+            // Detect collisions
+            detectCollisions();
+
+            // Call game loop recursively
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start the game
+        gameLoop();
+    </script>
+</body>
+</html>

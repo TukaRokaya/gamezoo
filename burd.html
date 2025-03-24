@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: skyblue;
+            flex-direction: column;
+        }
+        canvas {
+            background-color: lightgreen;
+            border: 2px solid black;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #ff4500;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin: 5px;
+        }
+        .button:hover {
+            background-color: #d63415;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="400" height="500"></canvas>
+    <div class="controls">
+        <button class="button" id="resetButton">Reset Game</button>
+        <button class="button" id="backButton">Back to Menu</button>
+        <button class="button" id="restartButton">Restart Game</button>
+    </div>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const resetButton = document.getElementById("resetButton");
+        const backButton = document.getElementById("backButton");
+        const restartButton = document.getElementById("restartButton");
+
+        // Load images
+        const birdImage = new Image();
+        birdImage.src = "https://i.postimg.cc/5j5FMs9m/b.png"; // Bird Image URL
+        const backgroundImage = new Image();
+        backgroundImage.src = "https://i.postimg.cc/HrnJXHwS/n.jpg"; // Background Image URL
+        const pipeImage = new Image();
+        pipeImage.src = "https://i.postimg.cc/w76RxD7Y/p.jpg"; // Pipe Image URL
+
+        let bird = { x: 50, y: 200, width: 30, height: 30, velocity: 0, gravity: 0.5 };
+        let pipes = [];
+        let score = 0;
+        let gameOver = false;
+        let gamePaused = false;
+
+        function drawBird() {
+            ctx.drawImage(birdImage, bird.x, bird.y, bird.width, bird.height); // Draw bird image
+        }
+
+        function drawPipes() {
+            pipes.forEach(pipe => {
+                // Top pipe
+                ctx.drawImage(pipeImage, pipe.x, 0, pipe.width, pipe.top);
+                // Bottom pipe
+                ctx.drawImage(pipeImage, pipe.x, pipe.bottom, pipe.width, canvas.height - pipe.bottom);
+            });
+        }
+
+        function drawBackground() {
+            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height); // Draw background image
+        }
+
+        function updateBird() {
+            bird.velocity += bird.gravity;
+            bird.y += bird.velocity;
+            if (bird.y + bird.height > canvas.height) {
+                bird.y = canvas.height - bird.height; // Prevent the bird from falling off the screen
+                if (!gamePaused) {
+                    gameOver = true;
+                }
+            }
+        }
+
+        function updatePipes() {
+            if (pipes.length === 0 || pipes[pipes.length - 1].x < 250) {
+                let gap = 120;
+                let topHeight = Math.random() * (canvas.height / 2);
+                pipes.push({ x: 400, width: 50, top: topHeight, bottom: topHeight + gap });
+            }
+            pipes.forEach(pipe => pipe.x -= 2);
+            pipes = pipes.filter(pipe => pipe.x + pipe.width > 0);
+        }
+
+        function checkCollision() {
+            pipes.forEach(pipe => {
+                if (bird.x < pipe.x + pipe.width && bird.x + bird.width > pipe.x &&
+                    (bird.y < pipe.top || bird.y + bird.height > pipe.bottom)) {
+                    gameOver = true;
+                }
+            });
+        }
+
+        function drawScore() {
+            ctx.fillStyle = "black";
+            ctx.font = "20px Arial";
+            ctx.fillText(`Score: ${score}`, 10, 20);
+        }
+
+        function gameLoop() {
+            if (gameOver) {
+                ctx.fillStyle = "red";
+                ctx.font = "30px Arial";
+                ctx.fillText("Game Over", 130, 250);
+                return;
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground(); // Draw background first
+            drawBird();
+            drawPipes();
+            drawScore();
+            updateBird();
+            updatePipes();
+            checkCollision();
+            if (!gamePaused) score += 1;
+            requestAnimationFrame(gameLoop);
+        }
+
+        document.addEventListener("keydown", () => {
+            if (!gameOver && !gamePaused) bird.velocity = -7;
+        });
+
+        resetButton.addEventListener("click", () => {
+            resetGame();
+        });
+
+        backButton.addEventListener("click", () => {
+            alert("Back to Menu (Placeholder)");
+        });
+
+        restartButton.addEventListener("click", () => {
+            restartGame();
+        });
+
+        function resetGame() {
+            bird = { x: 50, y: 200, width: 30, height: 30, velocity: 0, gravity: 0.5 };
+            pipes = [];
+            score = 0;
+            gameOver = false;
+            gamePaused = false;
+            gameLoop();
+        }
+
+        function restartGame() {
+            resetGame(); // Restart the game by calling the reset function
+        }
+
+        birdImage.onload = () => { // Start game after images load
+            backgroundImage.onload = () => {
+                pipeImage.onload = () => {
+                    gameLoop();
+                };
+            };
+        };
+    </script>
+</body>
+</html>

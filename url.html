@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Downloader</title>
+    <style>
+        /* General reset and box-sizing */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Container for content */
+        .container {
+            text-align: center;
+            background: #ffffff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        /* Heading styles */
+        h2 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* Input field styling */
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #007bff;
+        }
+
+        /* Button styling */
+        button {
+            padding: 15px 30px;
+            background-color: #007bff;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Add a footer with an info text */
+        .footer {
+            margin-top: 20px;
+            color: #777;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            input[type="text"] {
+                font-size: 14px;
+            }
+
+            button {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>YouTube Video Downloader</h2>
+        <input type="text" id="videoUrl" placeholder="Enter YouTube URL" />
+        <button onclick="downloadVideo()">Download Video</button>
+        <p class="footer">Powered by <a href="https://ssyoutube.com/" target="_blank">ssyoutube.com</a></p>
+    </div>
+
+    <script>
+        function downloadVideo() {
+            const url = document.getElementById("videoUrl").value.trim();
+
+            if (!url) {
+                alert("Please enter a valid YouTube URL!");
+                return;
+            }
+
+            // Redirect to a third-party YouTube downloader site
+            window.open(`https://ssyoutube.com/${url}`, "_blank");
+        }
+    </script>
+
+</body>
+</html>

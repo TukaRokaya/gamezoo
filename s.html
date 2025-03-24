@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #fff;
+            text-align: center;
+        }
+        h1 {
+            color: #ffcc00;
+            font-size: 50px;
+            margin-top: 20px;
+        }
+        canvas {
+            background-color: #333;
+            display: block;
+            margin: 30px auto;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Button Styles */
+        button {
+            font-size: 18px;
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.3s;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #ffcc00;
+            transform: scale(1.1);
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        #restartBtn {
+            background-color: #4caf50;
+            color: white;
+        }
+        #backBtn {
+            background-color: #f44336;
+            color: white;
+        }
+        /* Footer */
+        footer {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #333;
+            text-align: center;
+            border-top: 2px solid #ffcc00;
+        }
+    </style>
+</head>
+<body>
+    <h1>Snake Game</h1>
+    <canvas id="gameCanvas"></canvas>
+    <div class="buttons" style="display: none;">
+        <button id="restartBtn">Restart Game</button>
+    </div>
+
+    <footer>
+        <button id="backBtn">Go Back</button>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const restartBtn = document.getElementById("restartBtn");
+        const backBtn = document.getElementById("backBtn");
+
+        const tileSize = 25;
+        const gridWidth = 20;
+        const gridHeight = 20;
+        canvas.width = tileSize * gridWidth;
+        canvas.height = tileSize * gridHeight;
+
+        let snake, direction, food, running;
+        resetGame();
+
+        let gameLoop = setInterval(update, 150);
+
+        function resetGame() {
+            snake = [{ x: 5 * tileSize, y: 5 * tileSize }];
+            direction = "RIGHT";
+            food = { 
+                x: Math.floor(Math.random() * gridWidth) * tileSize, 
+                y: Math.floor(Math.random() * gridHeight) * tileSize 
+            };
+            running = true;
+            document.querySelector(".buttons").style.display = "none";
+        }
+
+        function update() {
+            if (!running) return;
+            
+            let head = { ...snake[0] };
+            if (direction === "UP") head.y -= tileSize;
+            if (direction === "DOWN") head.y += tileSize;
+            if (direction === "LEFT") head.x -= tileSize;
+            if (direction === "RIGHT") head.x += tileSize;
+
+            if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || 
+                snake.some(part => part.x === head.x && part.y === head.y)) {
+                gameOver();
+                return;
+            }
+
+            if (head.x === food.x && head.y === food.y) {
+                food = { 
+                    x: Math.floor(Math.random() * gridWidth) * tileSize, 
+                    y: Math.floor(Math.random() * gridHeight) * tileSize 
+                };
+            } else {
+                snake.pop();
+            }
+
+            snake.unshift(head);
+            draw();
+        }
+
+        function draw() {
+            ctx.fillStyle = "#333";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "red";
+            ctx.fillRect(food.x, food.y, tileSize, tileSize);
+
+            ctx.fillStyle = "green";
+            snake.forEach((part, index) => {
+                ctx.fillStyle = index === 0 ? "lime" : "green";
+                ctx.fillRect(part.x, part.y, tileSize, tileSize);
+            });
+        }
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+            if (event.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+            if (event.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+            if (event.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+        });
+
+        function gameOver() {
+            running = false;
+            clearInterval(gameLoop);
+
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "red";
+            ctx.font = "40px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 20);
+
+            document.querySelector(".buttons").style.display = "block";
+        }
+
+        restartBtn.addEventListener("click", () => {
+            resetGame();
+            gameLoop = setInterval(update, 150);
+        });
+
+        backBtn.addEventListener("click", () => {
+            window.history.back(); // 🔙 Go to previous page dynamically
+        });
+    </script>
+</body>
+</html>

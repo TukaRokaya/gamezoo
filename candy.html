@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candy Crush Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f7f7f7;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: #ff4081;
+            margin-bottom: 20px;
+        }
+
+        .score {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(8, 60px);
+            grid-template-rows: repeat(8, 60px);
+            gap: 5px;
+        }
+
+        .candy {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        /* Candy colors */
+        .red { background-color: red; }
+        .blue { background-color: blue; }
+        .yellow { background-color: yellow; }
+        .green { background-color: green; }
+        .purple { background-color: purple; }
+        .orange { background-color: orange; }
+
+        .candy:hover {
+            transform: scale(1.1);
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            margin-top: 20px;
+            cursor: pointer;
+            background-color: #ff4081;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #f50057;
+        }
+    </style>
+</head>
+<body>
+    <h1>Candy Crush</h1>
+    <div class="score">Score: <span id="score">0</span></div>
+    <div class="board" id="board"></div>
+    <button id="restart">Restart Game</button>
+
+    <script>
+        const boardSize = 8;
+        const candyTypes = ['red', 'blue', 'yellow', 'green', 'purple', 'orange'];
+        let board = [];
+        let score = 0;
+
+        const boardElement = document.getElementById('board');
+        const scoreElement = document.getElementById('score');
+        const restartButton = document.getElementById('restart');
+
+        // Initialize the board with random candies
+        function initializeBoard() {
+            board = [];
+            for (let row = 0; row < boardSize; row++) {
+                const rowArray = [];
+                for (let col = 0; col < boardSize; col++) {
+                    const candy = candyTypes[Math.floor(Math.random() * candyTypes.length)];
+                    rowArray.push(candy);
+                }
+                board.push(rowArray);
+            }
+            renderBoard();
+        }
+
+        // Render the board with candies
+        function renderBoard() {
+            boardElement.innerHTML = '';
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    const candyElement = document.createElement('div');
+                    candyElement.classList.add('candy', board[row][col]);
+                    candyElement.setAttribute('data-row', row);
+                    candyElement.setAttribute('data-col', col);
+                    candyElement.addEventListener('click', handleCandyClick);
+                    boardElement.appendChild(candyElement);
+                }
+            }
+        }
+
+        let selectedCandy = null;
+
+        // Handle candy click event for swapping
+        function handleCandyClick(event) {
+            const clickedCandy = event.target;
+            const row = parseInt(clickedCandy.getAttribute('data-row'));
+            const col = parseInt(clickedCandy.getAttribute('data-col'));
+
+            if (!selectedCandy) {
+                selectedCandy = { row, col, candy: board[row][col], element: clickedCandy };
+            } else {
+                if (isValidSwap(selectedCandy, { row, col })) {
+                    swapCandies(selectedCandy, { row, col });
+                    selectedCandy = null;
+                    checkMatches();
+                } else {
+                    selectedCandy = { row, col, candy: board[row][col], element: clickedCandy };
+                }
+            }
+        }
+
+        // Check if the swap is valid (adjacent candies)
+        function isValidSwap(candy1, candy2) {
+            return Math.abs(candy1.row - candy2.row) <= 1 && Math.abs(candy1.col - candy2.col) <= 1;
+        }
+
+        // Swap two candies on the board
+        function swapCandies(candy1, candy2) {
+            const temp = board[candy1.row][candy1.col];
+            board[candy1.row][candy1.col] = board[candy2.row][candy2.col];
+            board[candy2.row][candy2.col] = temp;
+            renderBoard();
+            updateScore();
+        }
+
+        // Check for matches and update the score
+        function checkMatches() {
+            let matchedCandies = [];
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    const candyColor = board[row][col];
+                    if (checkHorizontalMatch(row, col, candyColor) || checkVerticalMatch(row, col, candyColor)) {
+                        matchedCandies.push({ row, col });
+                    }
+                }
+            }
+
+            if (matchedCandies.length > 0) {
+                removeMatches(matchedCandies);
+                renderBoard();
+            } else {
+                alert("No matches! Game over!");
+                restartGame();
+            }
+        }
+
+        // Check horizontal match
+        function checkHorizontalMatch(row, col, color) {
+            return col <= boardSize - 3 && board[row][col] === color && board[row][col + 1] === color && board[row][col + 2] === color;
+        }
+
+        // Check vertical match
+        function checkVerticalMatch(row, col, color) {
+            return row <= boardSize - 3 && board[row][col] === color && board[row + 1][col] === color && board[row + 2][col] === color;
+        }
+
+        // Remove matched candies
+        function removeMatches(matchedCandies) {
+            matchedCandies.forEach(candy => {
+                board[candy.row][candy.col] = null;  // Remove the matched candy
+            });
+            updateScore();
+        }
+
+        // Update score based on matches
+        function updateScore() {
+            score += 10;
+            scoreElement.textContent = "Score: " + score;
+        }
+
+        // Restart the game
+        function restartGame() {
+            score = 0;
+            scoreElement.textContent = "Score: " + score;
+            initializeBoard();
+        }
+
+        // Add event listener to restart button
+        restartButton.addEventListener('click', restartGame);
+
+        // Initialize the game
+        initializeBoard();
+    </script>
+</body>
+</html>

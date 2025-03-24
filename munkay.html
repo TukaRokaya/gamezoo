@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monkey Jump Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #87CEEB;
+        }
+
+        canvas {
+            border: 2px solid black;
+            background-color: #f0f0f0;
+        }
+
+        .score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 30px;
+            font-family: 'Arial', sans-serif;
+            color: red;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="score" id="score">Score: 0</div>
+    <div class="game-over" id="gameOver">Game Over! Press "R" to Restart</div>
+    <canvas id="gameCanvas" width="500" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreElement = document.getElementById("score");
+        const gameOverElement = document.getElementById("gameOver");
+
+        const monkeyWidth = 50;
+        const monkeyHeight = 50;
+        const gravity = 0.6;
+        const jumpStrength = -15;
+
+        let monkey = {
+            x: 50,
+            y: canvas.height - monkeyHeight - 20,
+            width: monkeyWidth,
+            height: monkeyHeight,
+            speedY: 0
+        };
+
+        let obstacles = [];
+        let score = 0;
+        let gameOver = false;
+
+        // Draw monkey
+        function drawMonkey() {
+            ctx.fillStyle = "brown";
+            ctx.fillRect(monkey.x, monkey.y, monkey.width, monkey.height);
+        }
+
+        // Draw obstacles
+        function drawObstacles() {
+            ctx.fillStyle = "green";
+            obstacles.forEach((obstacle) => {
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
+        }
+
+        // Move obstacles
+        function moveObstacles() {
+            obstacles.forEach((obstacle, index) => {
+                obstacle.x -= 5;
+                if (obstacle.x + obstacle.width < 0) {
+                    obstacles.splice(index, 1); // Remove obstacles off screen
+                    score++;
+                }
+            });
+        }
+
+        // Check collision with obstacles
+        function checkCollision() {
+            obstacles.forEach((obstacle) => {
+                if (
+                    monkey.x < obstacle.x + obstacle.width &&
+                    monkey.x + monkey.width > obstacle.x &&
+                    monkey.y < obstacle.y + obstacle.height &&
+                    monkey.y + monkey.height > obstacle.y
+                ) {
+                    gameOver = true;
+                    gameOverElement.style.display = "block";
+                }
+            });
+        }
+
+        // Jump action
+        function jump() {
+            if (monkey.y === canvas.height - monkeyHeight - 20) { // Check if monkey is on the ground
+                monkey.speedY = jumpStrength;
+            }
+        }
+
+        // Apply gravity
+        function applyGravity() {
+            if (monkey.y < canvas.height - monkeyHeight - 20) {
+                monkey.speedY += gravity;
+            } else {
+                monkey.speedY = 0;
+                monkey.y = canvas.height - monkeyHeight - 20; // Make sure the monkey doesn't fall below the ground
+            }
+            monkey.y += monkey.speedY;
+        }
+
+        // Create new obstacles
+        function createObstacles() {
+            if (Math.random() < 0.02) { // Random chance of creating an obstacle
+                const obstacleHeight = Math.floor(Math.random() * (canvas.height / 2)) + 20;
+                obstacles.push({
+                    x: canvas.width,
+                    y: canvas.height - obstacleHeight - 20,
+                    width: 20,
+                    height: obstacleHeight
+                });
+            }
+        }
+
+        // Draw score
+        function updateScore() {
+            scoreElement.textContent = `Score: ${score}`;
+        }
+
+        // Game loop
+        function gameLoop() {
+            if (gameOver) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawMonkey();
+            drawObstacles();
+            moveObstacles();
+            applyGravity();
+            createObstacles();
+            checkCollision();
+            updateScore();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Handle key presses for jump
+        document.addEventListener("keydown", (event) => {
+            if (event.key === " " && !gameOver) {
+                jump();
+            } else if (event.key === "r" || event.key === "R") {
+                resetGame();
+            }
+        });
+
+        // Reset the game
+        function resetGame() {
+            gameOver = false;
+            score = 0;
+            monkey.y = canvas.height - monkeyHeight - 20;
+            monkey.speedY = 0;
+            obstacles = [];
+            gameOverElement.style.display = "none";
+            gameLoop();
+        }
+
+        // Start the game
+        gameLoop();
+    </script>
+</body>
+</html>

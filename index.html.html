@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Website</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e2e;
+            color: white;
+            text-align: center;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #282a36;
+            padding: 15px 30px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .search-box {
+            padding: 8px;
+            border-radius: 20px;
+            border: none;
+            width: 250px;
+        }
+        .login {
+            background: #ff79c6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .login:hover {
+            background: #ff92d0;
+        }
+        .game-banner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #ff79c6, #bd93f9);
+            border-radius: 10px;
+            margin: 20px;
+        }
+        .move {
+            background: white;
+            color: black;
+            border: none;
+            padding: 10px 15px;
+            margin: 0 10px;
+            cursor: pointer;
+            border-radius: 50%;
+            font-weight: bold;
+        }
+        .game-list {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+        .game {
+            background: #44475a;
+            padding: 20px;
+            border-radius: 10px;
+            width: 150px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            font-weight: bold;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .game:hover {
+            background: #6272a4;
+        }
+        footer {
+            background: #282a36;
+            padding: 15px;
+            margin-top: 30px;
+        }
+        audio {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">🎮 GameZone</div>
+        <input type="text" placeholder="Search games..." class="search-box">
+        <button class="login">Login / Signup</button>
+    </header>
+    
+    <section class="game-banner">
+        <button class="move" onclick="moveLeft()">&lt;</button>
+        <div class="game-info">🔥 <a href="">Trending Games</a> | New Hints Available 🎵</div>
+        <button class="move" onclick="moveRight()">&gt;</button>
+    </section>
+    
+    <audio controls>
+        <source src="music/song.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    
+    <h2>Explore Our Games</h2>
+    <section class="game-list">
+        <div class="game" onclick="playGame('Stack Game')"><a href="s.html">Stack Game</a></div>
+        <div class="game" onclick="playGame('Classic')"><a href="snke.html">Tic Tac Toe game</div></a>
+        <div class="game" onclick="playGame('Adventure')"><a href="candy.html">candy cross</a></div>
+        <div class="game" onclick="playGame('Puzzle')"><a href="quiz.html">quiz</a></div>
+
+                <div class="game" onclick="playGame('Adventur')"><a href="candy.html"><a href="burd.html">Bird</a></div>
+
+    </section>
+    
+    <h2>new  move d</h2>
+    <section class="game-list">
+        <div class="game" onclick="playGame('Racing')"><a href="url.html">youtube video downloda</a></div>
+        <div class="game" onclick="playGame('Shooter')"><a href="whact.html"> whact video</a></div>
+        <div class="game" onclick="playGame('Survival')"><a href="move.html"> uploade video</a></div>
+        <div class="game" onclick="playGame('Multiplayer')">Multiplayer</div>
+    </section>
+    </section>
+    <footer>
+        <p>&copy; 2025 GameZone. All Rights Reserved.</p>
+    </footer>
+    
+    <script>
+        function playGame(gameName) {
+            alert('Launching ' + gameName);
+        }
+        function moveLeft() {
+            alert('Moving to previous game');
+        }
+        function moveRight() {
+            alert('Moving to next game');
+        }
+    </script>
+</body>
+</html>
